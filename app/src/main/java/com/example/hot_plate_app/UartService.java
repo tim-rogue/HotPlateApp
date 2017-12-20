@@ -25,6 +25,9 @@ import java.util.UUID;
  * given Bluetooth LE device.
  */
 public class UartService extends Service {
+    /*-----Tim Added------*/
+    private final static String DEVICE_ADDRESS = "E2:62:C4:C7:04:EE";
+    /*-----Tim Added------*/
     private final static String TAG = UartService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
@@ -338,7 +341,9 @@ public class UartService extends Service {
     public void writeRXCharacteristic(byte[] value)
     {
 
-
+        //if(mBluetoothGatt == null){
+            //connect(DEVICE_ADDRESS);
+        //}
         BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
         showMessage("mBluetoothGatt null"+ mBluetoothGatt);
         if (RxService == null) {

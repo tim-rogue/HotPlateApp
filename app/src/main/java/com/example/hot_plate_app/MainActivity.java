@@ -33,6 +33,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.design.widget.Snackbar;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean btScanning = false;
     int deviceIndex = 0;
     //------Tim added in Testing
-    public static final String TAG = "nRFUART";
+    public static final String TAG = "Hotplate App";
     private static final int REQUEST_SELECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
     private static final int UART_PROFILE_CONNECTED = 20;
@@ -121,11 +122,25 @@ public class MainActivity extends AppCompatActivity {
 
     //------Tim added For Real
     private Button HeatButton;
+    private Button StopButton;
     private EditText Setpoint1;
     private EditText Setpoint2;
     private TextView CurrTemp1;
     private TextView CurrTemp2;
 
+    //The part of the data packet that will notify the arduino as to
+    //wheather to heat the plates. either "ON" or "OFF"
+    private String Heating_string = "OFF";
+    //The part of the data packet that will contain the setpoints for
+    //the two hot plates. Will be decimal numbers 0.0 up to XXX.X
+    private String Setpoint1_string;
+    private String Setpoint2_string;
+
+    private String receivedString;
+    private String receivedSetpoint1;
+    private String receivedSetpoint2;
+    private String recievedTemp1;
+    private String recievedTemp2;
 
 
     //------Tim added For Real
@@ -165,21 +180,24 @@ public class MainActivity extends AppCompatActivity {
         btAdapter = btManager.getAdapter();
         btScanner = btAdapter.getBluetoothLeScanner();
 
-        btnSend=(Button) findViewById(R.id.sendButton);
-        edtMessage = (EditText) findViewById(R.id.sendText);
+        //btnSend=(Button) findViewById(R.id.sendButton);
+        //edtMessage = (EditText) findViewById(R.id.sendText);
 
         //-----------Tim added for Reals
         //Get a reference to all the Widgets used in the UI
         HeatButton = (Button) findViewById(R.id.Heat_Button);
+        StopButton = (Button) findViewById(R.id.Stop_Button);
         Setpoint1 = (EditText) findViewById(R.id.Setpoint_Entry_1);
         Setpoint2 =(EditText) findViewById(R.id.Setpoint_Entry_2);
         CurrTemp1 = (TextView) findViewById(R.id.Curr_Temp_Data_1);
         CurrTemp2 = (TextView) findViewById(R.id.Curr_Temp_Data_2);
 
         HeatButton.setText("Press to Heat");
+        StopButton.setText("Press to Stop");
         Setpoint1.setText("Enter Setpoint");
         Setpoint2.setText("Enter Setpoint");
-
+        CurrTemp1.setText("");
+        CurrTemp2.setText("");
 
 
 
@@ -214,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Handle Send button
-        btnSend.setOnClickListener(new View.OnClickListener() {
+        /*btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -235,6 +253,200 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
+        });*/
+
+
+
+        // Handle Heat button
+        HeatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                boolean success1=false;
+                boolean success2=false;
+
+
+                Setpoint1_string = Setpoint1.getText().toString();
+                Setpoint2_string = Setpoint2.getText().toString();
+
+                //Checks to see if Setpoint fields contain nubers entered by the user
+                try{
+                    double d1 = Double.parseDouble(Setpoint1_string);
+                    success1 = true;
+                }catch(NumberFormatException nfe){
+                    Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 1", Snackbar.LENGTH_SHORT);
+                    mySnackbar.show();
+                }
+                try{
+                    double d2 = Double.parseDouble(Setpoint2_string);
+                    success2 = true;
+                }catch(NumberFormatException nfe){
+                    Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 2", Snackbar.LENGTH_SHORT);
+                    mySnackbar.show();
+                }
+
+                // The user has entered both setpoint fields correctlly
+                if(success1&&success2) {
+
+                    //make first heating message;
+                    Heating_string = "1,ON;";
+                    //assemble string array that looks like ["1,ON;","2,3.45;","3,45.8"]
+                    String[] messages={Heating_string,"2,"+Setpoint1_string+";","3,"+Setpoint2_string+";"};
+                    int index = 0;
+                    Handler myHandler = new Handler();
+                    //iterate over all the strings in the message array
+                    for(final String text : messages)
+                    {
+                        //make a handler to allow for a delay between transmission
+                        //of the messages
+                        myHandler.postDelayed(new Runnable() {
+
+                            @Override
+                            public void run()
+                            {
+                                byte[] value;
+                                try {
+                                    value = text.getBytes("UTF-8");
+                                    mService.writeRXCharacteristic(value);
+                                    //Update the log with time stamp
+                                    String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
+                                    Log.d(TAG, "Heating button Pressed -- " + currentDateTimeString);
+                                }catch(UnsupportedEncodingException e){
+
+                                    e.printStackTrace();
+                                }catch(NullPointerException e){
+
+                                    Log.d(TAG,"writeRXcharacteristic threw null pointer exception. Reconnecting to bluetooth gatt");
+                                    mService.connect(DEVICE_ADDRESS);
+                                }
+                            }
+                        }, 100 * index );
+                    index += 1;
+                }
+            }
+                }
+
+                /*// The user has entered both setpoint fields correctlly
+                if(success1&&success2) {
+
+                    Heating_string = "ON";
+                    String message = Heating_string + "," + Setpoint1_string + "," + Setpoint2_string + ";";
+                    byte[] value;
+
+                    try {
+                        //send data to service
+                        value = message.getBytes("UTF-8");
+                        Log.d(TAG,"the Size of the byte array being sent: "+ Integer.toString(value.length));
+                        try{
+                            mService.writeRXCharacteristic(value);
+                        }catch(NullPointerException e){
+                            Log.d(TAG,"writeRXcharacteristic threw null pointer exception. Reconnecting to bluetooth gatt");
+                            mService.connect(DEVICE_ADDRESS);
+
+
+                        }
+
+                        //Update the log with time stamp
+                        String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
+                        Log.d(TAG, "Heating button Pressed -- " + currentDateTimeString);
+
+                    } catch (UnsupportedEncodingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }*/
+
+
+        });
+
+        // Handle Stop button click
+        //Just sends the string "OFF;" to the arduino
+        StopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                boolean success1=false;
+                boolean success2=false;
+
+
+                Setpoint1_string = Setpoint1.getText().toString();
+                Setpoint2_string = Setpoint2.getText().toString();
+
+                //Checks to see if Setpoint fields contain nubers entered by the user
+                try{
+                    double d1 = Double.parseDouble(Setpoint1_string);
+                    success1 = true;
+                }catch(NumberFormatException nfe){
+                    Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 1", Snackbar.LENGTH_SHORT);
+                    mySnackbar.show();
+                }
+                try{double d2 = Double.parseDouble(Setpoint2_string);
+                    success2 = true;
+                }catch(NumberFormatException nfe){
+                    Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 2", Snackbar.LENGTH_SHORT);
+                    mySnackbar.show();
+                }
+
+
+                // The user has entered both setpoint fields correctlly
+                if(success1&&success2) {
+
+                    //make first heating message;
+                    Heating_string = "1,OFF;";
+                    //assemble string array that looks like ["1,ON;","2,3.45;","3,45.8"]
+                    String[] messages={Heating_string,"2,"+Setpoint1_string+";","3,"+Setpoint2_string+";"};
+                    int index = 0;
+                    Handler myHandler = new Handler();
+                    //iterate over all the strings in the message array
+                    for(final String text : messages)
+                    {
+                        //make a handler to allow for a delay between transmission
+                        //of the messages
+                        myHandler.postDelayed(new Runnable() {
+
+                            @Override
+                            public void run()
+                            {
+                                byte[] value;
+                                try {
+                                    value = text.getBytes("UTF-8");
+                                    mService.writeRXCharacteristic(value);
+                                    //Update the log with time stamp
+                                    String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
+                                    Log.d(TAG, "Heating button Pressed -- " + currentDateTimeString);
+                                }catch(UnsupportedEncodingException e){
+
+                                    e.printStackTrace();
+                                }catch(NullPointerException e){
+
+                                    Log.d(TAG,"writeRXcharacteristic threw null pointer exception. Reconnecting to bluetooth gatt");
+                                    mService.connect(DEVICE_ADDRESS);
+                                }
+                            }
+                        }, 100 * index );
+                        index += 1;
+                    }
+                }
+                /*if(success1&&success2) {
+                    // The user has entered both setpoint fields correctlly
+                    Heating_string = "OFF";
+                    String message = Heating_string + "," + Setpoint1_string + "," + Setpoint2_string + ";";
+                    byte[] value;
+                    try {
+                        //send data to service
+                        value = message.getBytes("UTF-8");
+                        mService.writeRXCharacteristic(value);
+                        //Update the log with time stamp
+                        String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
+                        Log.d(TAG, "Stop Button Pressed -- " + currentDateTimeString);
+
+                    } catch (UnsupportedEncodingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }*/
+
+            }
         });
 
 
@@ -247,8 +459,8 @@ public class MainActivity extends AppCompatActivity {
             mService = ((UartService.LocalBinder) rawBinder).getService();
             Log.d(TAG, "onServiceConnected mService= " + mService);
             //----Tim Added
-            edtMessage.setEnabled(true);
-            btnSend.setEnabled(true);
+            //edtMessage.setEnabled(true);
+            //btnSend.setEnabled(true);
             mService.initialize();
             mService.connect(DEVICE_ADDRESS);
             //----Tim Added
@@ -279,8 +491,8 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_CONNECT_MSG");
-                        edtMessage.setEnabled(true);
-                        btnSend.setEnabled(true);
+                        //edtMessage.setEnabled(true);
+                        //btnSend.setEnabled(true);
                         mState = UART_PROFILE_CONNECTED;
                     }
                 });
@@ -292,9 +504,9 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
                         Log.d(TAG, "UART_DISCONNECT_MSG");
-                        edtMessage.setEnabled(false);
-                        btnSend.setEnabled(false);
-                        ((TextView) findViewById(R.id.deviceName)).setText("Not Connected");
+                        //edtMessage.setEnabled(false);
+                        //btnSend.setEnabled(false);
+                        //((TextView) findViewById(R.id.deviceName)).setText("Not Connected");
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();
                         //setUiState();
@@ -317,9 +529,24 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         try {
-                            String text = new String(txValue, "UTF-8");
+                            receivedString = new String(txValue, "UTF-8");
+
                             String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
-                            Log.d(TAG, "receiving"+currentDateTimeString +text);
+                            //Log.d(TAG, "receiving "+currentDateTimeString +" "+receivedString);
+                            Log.d(TAG, "receiving "+currentDateTimeString +" "+receivedString);
+                            String[] parts = receivedString.split(",|;|\r\n");
+                            for(String part:parts){
+                                Log.d(TAG, part+" was parsed from received string");
+
+
+                            }
+                            //receivedSetpoint1 =parts[0];
+                            //receivedSetpoint2 =parts[1];
+                            recievedTemp1 = parts[0];
+                            recievedTemp2 = parts[1];
+                            Log.d(TAG, recievedTemp1+" "+recievedTemp2+" ");
+                            CurrTemp1.setText(recievedTemp1);
+                            CurrTemp2.setText(recievedTemp2);
 
 
                         } catch (Exception e) {
