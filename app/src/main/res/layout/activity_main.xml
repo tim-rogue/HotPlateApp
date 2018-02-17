@@ -8,35 +8,6 @@
     tools:context="com.example.hot_plate_app.MainActivity">
 
     <TextView
-        android:id="@+id/Curr_Temp_Label_2"
-        android:layout_width="163dp"
-        android:layout_height="38dp"
-        android:layout_marginBottom="116dp"
-        android:layout_marginLeft="24dp"
-        android:text="Current Temp :"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent" />
-
-    <TextView
-        android:id="@+id/Thermo_Label_2"
-        android:layout_width="294dp"
-        android:layout_height="34dp"
-        android:text="Thermocouple 2"
-        android:textAlignment="textStart"
-        android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.Compat.Notification.Info"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.055"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.454" />
-
-    <TextView
         android:id="@+id/Thermo_Label_1"
         android:layout_width="294dp"
         android:layout_height="34dp"
@@ -54,18 +25,6 @@
         app:layout_constraintVertical_bias="0.054" />
 
     <TextView
-        android:id="@+id/Setpoint_Label_2"
-        android:layout_width="104dp"
-        android:layout_height="39dp"
-        android:layout_marginBottom="200dp"
-        android:layout_marginLeft="36dp"
-        android:text="Set Point "
-        android:textAlignment="center"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent" />
-
-    <TextView
         android:id="@+id/Setpoint_Label_1"
         android:layout_width="104dp"
         android:layout_height="39dp"
@@ -76,18 +35,6 @@
         android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/Setpoint_Entry_2"
-        android:layout_width="193dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="200dp"
-        android:layout_marginRight="16dp"
-        android:ems="10"
-        android:inputType="textVisiblePassword|number|numberDecimal"
-        android:text="Name"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
 
     <EditText
         android:id="@+id/Setpoint_Entry_1"
@@ -115,19 +62,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/Setpoint_Hint_2"
-        android:layout_width="170dp"
-        android:layout_height="34dp"
-        android:layout_marginBottom="164dp"
-        android:text="Enter the setpoint of Thermocouple 1 in Celcius i.e 120.0"
-        android:textAlignment="center"
-        android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.817"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <TextView
         android:id="@+id/Curr_Temp_Label_1"
         android:layout_width="163dp"
         android:layout_height="38dp"
@@ -150,18 +84,6 @@
         android:textSize="14sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/Curr_Temp_Data_2"
-        android:layout_width="158dp"
-        android:layout_height="27dp"
-        android:layout_marginBottom="116dp"
-        android:layout_marginLeft="208dp"
-        android:text="Current Temp"
-        android:textAlignment="textStart"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent" />
 
     <Button
         android:id="@+id/Stop_Button"

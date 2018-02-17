@@ -124,9 +124,9 @@ public class MainActivity extends AppCompatActivity {
     private Button HeatButton;
     private Button StopButton;
     private EditText Setpoint1;
-    private EditText Setpoint2;
+    //private EditText Setpoint2;
     private TextView CurrTemp1;
-    private TextView CurrTemp2;
+    //private TextView CurrTemp2;
 
     //The part of the data packet that will notify the arduino as to
     //wheather to heat the plates. either "ON" or "OFF"
@@ -134,13 +134,13 @@ public class MainActivity extends AppCompatActivity {
     //The part of the data packet that will contain the setpoints for
     //the two hot plates. Will be decimal numbers 0.0 up to XXX.X
     private String Setpoint1_string;
-    private String Setpoint2_string;
+    //private String Setpoint2_string;
 
     private String receivedString;
     private String receivedSetpoint1;
     private String receivedSetpoint2;
     private String recievedTemp1;
-    private String recievedTemp2;
+    //private String recievedTemp2;
 
 
     //------Tim added For Real
@@ -188,16 +188,16 @@ public class MainActivity extends AppCompatActivity {
         HeatButton = (Button) findViewById(R.id.Heat_Button);
         StopButton = (Button) findViewById(R.id.Stop_Button);
         Setpoint1 = (EditText) findViewById(R.id.Setpoint_Entry_1);
-        Setpoint2 =(EditText) findViewById(R.id.Setpoint_Entry_2);
+        //Setpoint2 =(EditText) findViewById(R.id.Setpoint_Entry_2);
         CurrTemp1 = (TextView) findViewById(R.id.Curr_Temp_Data_1);
-        CurrTemp2 = (TextView) findViewById(R.id.Curr_Temp_Data_2);
+        //CurrTemp2 = (TextView) findViewById(R.id.Curr_Temp_Data_2);
 
         HeatButton.setText("Press to Heat");
         StopButton.setText("Press to Stop");
         Setpoint1.setText("Enter Setpoint");
-        Setpoint2.setText("Enter Setpoint");
+        //Setpoint2.setText("Enter Setpoint");
         CurrTemp1.setText("");
-        CurrTemp2.setText("");
+        //CurrTemp2.setText("");
 
 
 
@@ -263,11 +263,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 boolean success1=false;
-                boolean success2=false;
+                //boolean success2=false;
 
 
                 Setpoint1_string = Setpoint1.getText().toString();
-                Setpoint2_string = Setpoint2.getText().toString();
+                //Setpoint2_string = Setpoint2.getText().toString();
 
                 //Checks to see if Setpoint fields contain nubers entered by the user
                 try{
@@ -277,21 +277,22 @@ public class MainActivity extends AppCompatActivity {
                     Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 1", Snackbar.LENGTH_SHORT);
                     mySnackbar.show();
                 }
-                try{
+                /*try{
                     double d2 = Double.parseDouble(Setpoint2_string);
                     success2 = true;
                 }catch(NumberFormatException nfe){
                     Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 2", Snackbar.LENGTH_SHORT);
                     mySnackbar.show();
-                }
+                }*/
 
                 // The user has entered both setpoint fields correctlly
-                if(success1&&success2) {
-
+                //if(success1&&success2) {
+                if(success1) {
                     //make first heating message;
                     Heating_string = "1,ON;";
                     //assemble string array that looks like ["1,ON;","2,3.45;","3,45.8"]
-                    String[] messages={Heating_string,"2,"+Setpoint1_string+";","3,"+Setpoint2_string+";"};
+                    //String[] messages={Heating_string,"2,"+Setpoint1_string+";","3,"+Setpoint2_string+";"};
+                    String[] messages={Heating_string,"2,"+Setpoint1_string+";"};
                     int index = 0;
                     Handler myHandler = new Handler();
                     //iterate over all the strings in the message array
@@ -366,11 +367,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 boolean success1=false;
-                boolean success2=false;
+                //boolean success2=false;
 
 
                 Setpoint1_string = Setpoint1.getText().toString();
-                Setpoint2_string = Setpoint2.getText().toString();
+                //Setpoint2_string = Setpoint2.getText().toString();
 
                 //Checks to see if Setpoint fields contain nubers entered by the user
                 try{
@@ -380,21 +381,23 @@ public class MainActivity extends AppCompatActivity {
                     Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 1", Snackbar.LENGTH_SHORT);
                     mySnackbar.show();
                 }
-                try{double d2 = Double.parseDouble(Setpoint2_string);
+                /*try{double d2 = Double.parseDouble(Setpoint2_string);
                     success2 = true;
                 }catch(NumberFormatException nfe){
                     Snackbar mySnackbar = Snackbar.make(findViewById(R.id.myConstraintLayout), "Enter a Decimal number for Setpoint 2", Snackbar.LENGTH_SHORT);
                     mySnackbar.show();
-                }
+                }*/
 
 
                 // The user has entered both setpoint fields correctlly
-                if(success1&&success2) {
+                //if(success1&&success2) {
+                if(success1) {
 
                     //make first heating message;
                     Heating_string = "1,OFF;";
                     //assemble string array that looks like ["1,ON;","2,3.45;","3,45.8"]
-                    String[] messages={Heating_string,"2,"+Setpoint1_string+";","3,"+Setpoint2_string+";"};
+                    //String[] messages={Heating_string,"2,"+Setpoint1_string+";","3,"+Setpoint2_string+";"};
+                    String[] messages={Heating_string,"2,"+Setpoint1_string+";"};
                     int index = 0;
                     Handler myHandler = new Handler();
                     //iterate over all the strings in the message array
@@ -540,13 +543,14 @@ public class MainActivity extends AppCompatActivity {
 
 
                             }
-                            //receivedSetpoint1 =parts[0];
+                            receivedSetpoint1 =parts[0];
                             //receivedSetpoint2 =parts[1];
                             recievedTemp1 = parts[0];
-                            recievedTemp2 = parts[1];
-                            Log.d(TAG, recievedTemp1+" "+recievedTemp2+" ");
+                            //recievedTemp2 = parts[1];
+                            //Log.d(TAG, recievedTemp1+" "+recievedTemp2+" ");
+                            Log.d(TAG, recievedTemp1);
                             CurrTemp1.setText(recievedTemp1);
-                            CurrTemp2.setText(recievedTemp2);
+                            //CurrTemp2.setText(recievedTemp2);
 
 
                         } catch (Exception e) {
